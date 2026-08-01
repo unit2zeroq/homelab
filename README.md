@@ -48,7 +48,7 @@ A hands-on engineering environment dedicated to system administration, network s
 * **Implementation Summary:** Erected a production-simulated service desk ticketing architecture. Installed and hardened a LAMP stack on Ubuntu, provisioned a dedicated `osticket` MySQL database with restrictive user privileges, and mapped web directory permissions (`www-data`). The platform acts as a sandbox environment for analyzing help desk workflows, intake triage, ticket routing, and SLA resolution tracking.
 
 ### 6. Immich Self-Hosted Photo & Video Storage
-* **Status:** Completed (07/2026)
+* **Status:** Completed
 * **Environment:** Dell OptiPlex 3060 | Ubuntu Server 26.04 LTS (64-bit)
 * **Storage:** 2x WD Red Plus 4TB HDDs in external dual-bay enclosure (independent/JBOD mode)
 * **Core Components:** Docker Compose, Immich (open-source photo/video management platform).
