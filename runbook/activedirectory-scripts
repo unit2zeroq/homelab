@@ -1,0 +1,189 @@
+# [Interactive Active Directory New User Creation Script]
+Date: [08/2026]
+Status: [completed]
+
+---
+
+## Overview
+this is a PowerShell script built for the homelab AD environment that automates the process of creating new Active Directory users through an interactive, looping prompt. 
+instead of manually running New-ADUser for every account, the script asks for first name, last name, username, department, and title, maps the user to the correct OU based on department, 
+optionally creates/adds them to a department security group, and verifies the account was created correctly — all in one continuous session so multiple users can be created back to back without re-running the script.
+
+---
+
+## Environment
+- Device: [Windows Server 2025 DC]
+- OS: [Windows Server 2025]
+- Domain: [homelab.local]
+- Tooling: [PowerShell 5.1, ActiveDirectory module]
+---
+## Steps
+1. [imported the ActiveDirectory module and pulled the domain's DNS root and distinguished name dynamically with Get-ADDomain, so the script isn't hardcoded to one domain]
+2. [built a do/while loop so the whole account creation process repeats until the admin chooses not to create another user]
+3. [prompted for first name, last name, SAM account name, department, and title, with a check that required fields aren't left blank]
+4. [added a duplicate check with Get-ADUser -Filter before going any further, so the script doesn't attempt to create an account that already exists]
+5. [built a switch statement to map department to the correct OU using the domain's base DN, so IT/HR/Sales/default all land in the right place automatically]
+6. [prompted for a password twice using Read-Host -AsSecureString so the password is masked on screen instead of echoed in plaintext, then converted both SecureStrings to BSTR just long enough to compare them 
+   for a match, and zeroed the BSTR pointers right after]
+7. [wrapped the group creation, New-ADUser call, and group membership add all in the same try/catch/finally block, with -ErrorAction Stop on each so any failure is caught in one place instead of crashing the loop]
+8. [used a finally block to null out the password variable after every iteration so it doesn't sit in memory longer than it needs to]
+9. [ran Get-ADUser with -Properties Department, Title, MemberOf after creation to print a verification summary confirming the account, OU, department, title, and group membership]
+
+---
+
+## Code
+
+```powershell
+# ============================================================
+# INTERACTIVE NEW USER CREATION - WITH LOOP
+# ============================================================
+
+Import-Module ActiveDirectory
+Clear-Host
+
+# Resolve domain info once up front
+$Domain  = (Get-ADDomain).DNSRoot
+$BaseDN  = (Get-ADDomain).DistinguishedName
+
+do {
+    Clear-Host
+    Write-Host "`n=== NEW USER CREATION ===" -ForegroundColor Cyan
+    Write-Host "Enter the information below:`n" -ForegroundColor Yellow
+
+    # --- Basic info ---
+    $FirstName  = Read-Host "First Name"
+    $LastName   = Read-Host "Last Name"
+    $SamAccount = Read-Host "Username (SAM account)"
+    $Department = Read-Host "Department (e.g., IT, HR, Sales)"
+    $Title      = Read-Host "Job Title"
+
+    if ([string]::IsNullOrWhiteSpace($FirstName) -or
+        [string]::IsNullOrWhiteSpace($LastName) -or
+        [string]::IsNullOrWhiteSpace($SamAccount)) {
+        Write-Host "`nFirst name, last name, and username are required." -ForegroundColor Red
+        Start-Sleep -Seconds 2
+        continue
+    }
+
+    if (Get-ADUser -Filter "SamAccountName -eq '$SamAccount'" -ErrorAction SilentlyContinue) {
+        Write-Host "`nA user with SAM account '$SamAccount' already exists." -ForegroundColor Red
+        Start-Sleep -Seconds 2
+        continue
+    }
+
+    $UPN   = "$SamAccount@$Domain"
+    $Group = "$Department-Staff"
+
+    $addToGroup = Read-Host "Create/add to group '$Group'? (y/n)"
+
+    # OU mapping — built from the domain's actual base DN
+    switch ($Department) {
+        "IT"    { $OU = "OU=IT,$BaseDN" }
+        "HR"    { $OU = "OU=HR,$BaseDN" }
+        "Sales" { $OU = "OU=Sales,$BaseDN" }
+        default { $OU = "OU=Users,$BaseDN" }
+    }
+
+    # --- Password input (masked, no plaintext echo) ---
+    Write-Host "`nEnter initial password twice:" -ForegroundColor Yellow
+    $SecurePW1 = Read-Host "New Password" -AsSecureString
+    $SecurePW2 = Read-Host "Confirm Password" -AsSecureString
+
+    $BSTR1 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePW1)
+    $BSTR2 = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($SecurePW2)
+    $PW1Plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR1)
+    $PW2Plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR2)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR1)
+    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR2)
+
+    if ($PW1Plain -ne $PW2Plain) {
+        Write-Host "`nPasswords do not match!" -ForegroundColor Red
+        $PW1Plain = $null; $PW2Plain = $null
+        Start-Sleep -Seconds 2
+        continue
+    }
+
+    $Password    = $SecurePW1
+    $PW1Plain    = $null
+    $PW2Plain    = $null
+    $DisplayName = "$FirstName $LastName"
+
+    try {
+        # Group creation/add happens inside the same try block now
+        if ($addToGroup -eq 'y' -or $addToGroup -eq 'Y') {
+            if (-not (Get-ADGroup -Filter "Name -eq '$Group'" -ErrorAction SilentlyContinue)) {
+                New-ADGroup -Name $Group -GroupScope Global -Path $OU -GroupCategory Security -ErrorAction Stop | Out-Null
+                Write-Host "Created group: $Group" -ForegroundColor Green
+            }
+        }
+
+        New-ADUser `
+            -Name $DisplayName `
+            -GivenName $FirstName `
+            -Surname $LastName `
+            -DisplayName $DisplayName `
+            -SamAccountName $SamAccount `
+            -UserPrincipalName $UPN `
+            -Path $OU `
+            -Department $Department `
+            -Title $Title `
+            -AccountPassword $Password `
+            -Enabled $true `
+            -ChangePasswordAtLogon $true `
+            -ErrorAction Stop
+
+        Write-Host "`n✓ User '$DisplayName' created successfully!" -ForegroundColor Green
+        Write-Host "  Login: $UPN"
+        Write-Host "  OU:    $OU"
+
+        if ($addToGroup -eq 'y' -or $addToGroup -eq 'Y') {
+            Add-ADGroupMember -Identity $Group -Members $SamAccount -ErrorAction Stop
+            Write-Host "  Group: Added to $Group"
+        }
+
+        Write-Host "`nVerification:" -ForegroundColor Yellow
+        Get-ADUser -Identity $SamAccount -Properties Department, Title, MemberOf |
+            Select-Object Name, SamAccountName, UserPrincipalName, Department, Title, @{Name="Groups";Expression={$_.MemberOf}} |
+            Format-List
+
+    } catch {
+        Write-Host "`n✗ Error: $_" -ForegroundColor Red
+    } finally {
+        # Clear password material regardless of success/failure
+        $Password = $null
+        [System.GC]::Collect()
+    }
+
+    $continue = Read-Host "`nCreate another user? (y/n)"
+
+} while ($continue -eq 'y' -or $continue -eq 'Y')
+
+Write-Host "`n=== Session Complete ===" -ForegroundColor Cyan
+```
+
+---
+
+## Notes
+manually creating AD accounts one at a time through ADUC gets repetitive fast, and doing it by hand increases the chance of typos in UPNs, wrong OU placement, or inconsistent naming. I wanted a script that handles 
+the repetitive parts (OU routing, group assignment, verification) while still prompting for the info that actually needs a human decision. also wanted to build something that reflects real 
+sysadmin/help desk workflow — onboarding automation is a common ask in entry-level IT roles, so this doubles as a practical skill demo and a portfolio piece.
+
+went through several security-focused revisions on the password handling specifically: the first draft used Read-Host with -AsSecureString:$false, which echoes the password in plaintext on screen 
+as it's typed. reworked it to use proper SecureString input for both the password and confirmation, and only converted to plaintext briefly (via BSTR) to check that the two entries matched, immediately 
+zeroing that memory afterward. also moved from hardcoded OU distinguished names to building them off the domain's actual base DN via Get-ADDomain, so the script isn't tied to one hardcoded domain if reused elsewhere.
+
+---
+
+## Issues Encountered
+n/a
+
+---
+
+## Result
+functioning interactive script that creates AD user accounts with correct OU placement, optional group membership, and a post-creation verification printout, without exposing plaintext 
+passwords on screen or in memory longer than necessary.
+
+---
+
+## Notes
+n/a
