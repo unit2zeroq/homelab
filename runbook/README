@@ -9,3 +9,4 @@ This folder contains step-by-step documentation for every service,configuration,
 - activedirectory-setup      -Active Directory Domain Services deployment on Windows Server 2025: forest root domain controller (DC01) with DNS/Global Catalog, plus a domain-joined Windows 11 Pro client validating authentication and Group Policy application
 - immich-setup      -Open-source, self-hosted photo and video storage solution installed using docker—new user generation.
 - activedirectory-scripts      -Automated a relatively standard task for an AD administrator
+- dhcp-lab      -DC DHCP setup through Windows Server and Windows 11 on VMware
