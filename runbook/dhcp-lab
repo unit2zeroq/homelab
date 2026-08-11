@@ -1,1 +1,64 @@
-placeholder
+# [DHCP Server Deployment on Homelab AD Domain Controller]
+Date: [08/2026]
+Status: [completed]
+
+---
+
+## Overview
+set up the DHCP Server role on the homelab Windows Server 2025 DC to replace default DHCP with a properly scoped, domain-aware setup. clients get IP leases from the DC, use the DC for DNS 
+(required for AD name resolution, GPO, and domain join to function correctly), and the DC forwards any non-domain DNS queries to the homelab's Pi-hole so ad-blocking applies network-wide 
+without breaking AD resolution.
+
+---
+
+## Environment
+- Device: [Windows Server 2025 DC]
+- OS: [Windows Server 2025]
+- Domain: [homelab.local]
+- Subnet: [private]
+- DC IP: [private]
+- Pi-hole IP: [private]
+- Tooling: [PowerShell, DHCP Server role, DNS Manager]
+
+---
+
+## Steps
+1. [installed the DHCP Server role and management tools: Install-WindowsFeature -Name DHCP -IncludeManagementTools]
+2. [authorized the DHCP server in Active Directory with Add-DhcpServerInDC — hit a PermissionDenied error on the first attempt because the logged-in account wasn't in Enterprise Admins; 
+   added the account to that group and re-ran the command successfully]
+3. [created a scope for the subnet: Add-DhcpServerv4Scope, /24, named Homelab-LAN]
+4. [set scope options with Set-DhcpServerv4OptionValue so clients get the DC's IP as DNS server, keeping AD name resolution working for domain-joined clients]
+5. [added a DNS forwarder on the DC pointing to the Pi-hole via DNS Manager, so queries the DC isn't authoritative for get forwarded to Pi-hole for ad-blocking, while homelab.local records still 
+   resolve locally]
+6. [excluded the low end of the subnet with Add-DhcpServerv4ExclusionRange to protect the DC's static IP and other statically assigned devices from being handed out by DHCP]
+7. [ran Get-DhcpServerv4Lease on the DC to check for issued leases — came back empty, which led to troubleshooting why the scope wasn't actually being used]
+8. [traced the issue to VMware Workstation's own virtual network (VMnet8, matching the lab subnet) running its own built-in DHCP service and answering client requests instead of the DC — 
+   confirmed via the Virtual Network Editor, where VMnet8 showed DHCP: Enabled]
+9. [disabled VMware's local DHCP service on VMnet8 so the DC's DHCP scope would be the only one answering on that subnet]
+10. [client fell back to an APIPA address (169.254.x.x) after the change, meaning the DHCP negotiation between the Windows 11 client and the DC isn't completing yet — confirmed the DC itself is 
+    healthy (DHCP authorized, DHCPServer service running, scope active) so the remaining issue is isolated to the client-to-DC network path, not the DHCP configuration itself]
+
+---
+
+## Issues Encountered
+- initial DHCP authorization failed with a PermissionDenied error — resolved by adding the account to Enterprise Admins
+- ad-blocking initially appeared to work when tested, but the Pi-hole query log showed the source IP as the physical workstation, not the VM — turned out the browser test was run on the host 
+  machine through the nested remote session, not inside the VM's guest OS, so it wasn't actually testing the DHCP/DNS forwarder chain at all
+- discovered VMware Workstation's own DHCP service on VMnet8 was answering client leases instead of the DC, despite the DC's scope being properly configured and active — disabled it in the 
+  Virtual Network Editor
+- after disabling VMware's DHCP, the Windows 11 client isn't yet completing a DHCP lease with the DC (falls back to APIPA) — DC-side config confirmed healthy, root cause still being isolated 
+  to the client/network path
+
+---
+
+## Result
+DHCP role installed, authorized in AD, and scope active on the DC with correct options and an exclusion range in place. DNS forwarder to Pi-hole configured. root cause of the DHCP conflict 
+(VMware's competing DHCP service) identified and resolved. client-to-DC lease negotiation not fully verified end to end yet — considering this stage complete for now and will revisit the 
+remaining connectivity issue separately.
+
+---
+
+## Notes
+good reminder that "it looks like it's working" isn't the same as verifying the actual path — the ad-blocking test passing on the wrong machine masked the fact that nothing was really being 
+tested yet. also a good example of environment quirks that don't show up in documentation: VMware Workstation runs its own DHCP service by default on NAT networks, which will silently compete 
+with anything set up inside the guest OS if it's not turned off first.
