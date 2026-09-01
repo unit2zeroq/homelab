@@ -54,5 +54,12 @@ User & Group Management:
   4. [if necessary, communicate with user, document necessary information]
 
 5. [create a security group and add/remove a member]
+  1. [navigate to 'server manager' application in windows server vm]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers]
+  3. [select OU you wish to create a security group in, and click 'create a new group in the current container']
+  4. [fill out necessary information (ensure that 'security' is checked in 'group type' and click ok]
+  5. [(add) right click user within OU you wish to add to security group, click 'add to a group,' enter name of security group, click ok]
+  6. [(remove) right click security group, click 'properties,' then 'members.' select member to remove, click remove, and confirm]
+
 ## Notes
 this lab simulates core help desk AD tasks including domain join troubleshooting, DNS dependency verification, and domain account authentication. next phase will build out an OU structure by department and apply Group Policy Objects (GPOs) to demonstrate policy creation, enforcement, and client-side verification
