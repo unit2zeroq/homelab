@@ -1,7 +1,7 @@
 # [Active Directory Domain Services - Windows Server 2025]
 
 Date: [ongoing]
-Status: [working]
+Status: [ongoing]
 
 ---
 
@@ -20,7 +20,39 @@ IP Address: [private]
 
 User & Group Management:
   1. [create a new user account via GUI]
-    1. [navigate to]
+    1. [navigate to 'server manager' application in windows server vm]
+    2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers]
+    3. [navigate to OU, then click 'create a new user in the current container' or right click and hover 'new -> user']
+    4. [fill out necessary details, click next, generate secure password (user must change password at next logon, enabled)]
+    5. [communicate with new user about account setup process, document necessary information]
 
+2. [create a new user account via PowerShell] (scripted for automation)
+  1. [navigate to 'powershell ISE' (for saving script), run as administrator]
+  2. [in powershell ISE, enter the following commands (example):]
+      New-ADUser -Name "Jane Smith" `
+        -GivenName "Jane" `
+        -Surname "Smith" `
+        -SamAccountName "jsmith" `
+        -UserPrincipalName "jsmith@homelab.local" `
+        -Path "OU=Sales,OU=Departments,DC=homelab,DC=local" `
+        -AccountPassword (Read-Host -AsSecureString "Enter Password") `
+        -Enabled $true `
+        -ChangePasswordAtLogon $true
+  3. [save, run, enter in necessary details]
+  4. [communicate with new user about account setup process, document necessary information]
+
+3. [reset a user's password and force a change at next logon (identity verified)]
+  1. [navigate to 'server manager' application in windows server vm]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers]
+  3. [select user you wish to reset password, right click their name, select 'reset password,' enter new password (ensure that 'user must change password at next logon' is checked]
+  4. [communicate new password securely with user, document necessary information]
+
+4. [disable an account and re-enable it]
+  1. [navigate to 'server manager' application in windows server vm]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers]
+  3. [select user you wish to disable, right click their name, click 'disable account']
+  4. [if necessary, communicate with user, document necessary information]
+
+5. [create a security group and add/remove a member]
 ## Notes
 this lab simulates core help desk AD tasks including domain join troubleshooting, DNS dependency verification, and domain account authentication. next phase will build out an OU structure by department and apply Group Policy Objects (GPOs) to demonstrate policy creation, enforcement, and client-side verification
