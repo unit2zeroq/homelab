@@ -19,7 +19,8 @@ IP Address: [private]
 ## Tasks
 
 User & Group Management:
-  
+  1. [create a new user account via GUI]
+    1. [navigate to]
 
 ## Notes
 this lab simulates core help desk AD tasks including domain join troubleshooting, DNS dependency verification, and domain account authentication. next phase will build out an OU structure by department and apply Group Policy Objects (GPOs) to demonstrate policy creation, enforcement, and client-side verification
