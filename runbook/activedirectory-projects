@@ -1,1 +1,25 @@
+# [Active Directory Domain Services - Windows Server 2025]
 
+Date: [ongoing]
+Status: [working]
+
+---
+
+## Overview
+
+this group of projects/tasks document relatively basic AD processes (user & group management, organizational units, group policy, etc).
+
+## Environment
+
+Device: [Windows Server VM (DC01) + Windows 11 Pro VM]
+OS: [Windows Server 2025 / Windows 11 Pro]
+Domain: [homelab.local]
+IP Address: [private]
+
+## Tasks
+
+User & Group Management:
+  
+
+## Notes
+this lab simulates core help desk AD tasks including domain join troubleshooting, DNS dependency verification, and domain account authentication. next phase will build out an OU structure by department and apply Group Policy Objects (GPOs) to demonstrate policy creation, enforcement, and client-side verification
