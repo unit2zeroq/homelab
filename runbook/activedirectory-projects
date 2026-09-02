@@ -80,5 +80,29 @@ OUs & Structure:
   3. [right click OU you wish to delegate control to a specific user, click 'delegate control']
   4. [add user, give proper permissions, document as needed]
 
+Group Policy:
+1. [create a new GPO and link it to an OU]
+  1. [navigate to 'server manager' application in windows server vm]
+  2. [while in 'dashboard' menu, click 'tools,' click 'group policy management']
+  3. [navigate to DC -> OU, then right click the OU and click 'create a GPO in this domain, and link it here..']
+  4. [configure the name of the GPO, input necessary settings, and enforce the GPO]
+   
+2. [configure a setting an visibly verify deployment (ex: desktop wallpaper)]
+  1. [navigate to 'server manager' application in windows server vm]
+  2. [while in 'dashboard' menu, click 'tools,' click 'group policy management']
+  3. [right click the target OU's linked GPO (or create a new one and link it to the OU), click 'edit']
+  4. [navigate to 'user configuration' -> 'policies' -> 'administrative templates' -> 'desktop' -> 'desktop']
+  5. [double click 'desktop wallpaper,' set to 'enabled']
+  6. [input UNC path to wallpaper image (e.g. \\dc01\wallpapers\default.jpg) in 'wallpaper name' field, select wallpaper style, click 'apply']
+  7. [verify NTFS/share read permissions on wallpaper folder for affected users/group]
+  8. [on client VM, run 'gpupdate /force,' log off and log back on to confirm policy applies]
+
+DNS & Authentication:
+1. [open the DNS zone the DC hosts (homelab.local) and locate SRV records]
+
+PowerShell for AD:
+1. [run Get-ADUser to pull info on an existing account]
+2. [run Set-ADUser to modify an attribute on an existing account]
+3. [create a new security group via New-ADGroup]
 ## Notes
 this lab simulates core help desk AD tasks including domain join troubleshooting, DNS dependency verification, and domain account authentication. next phase will build out an OU structure by department and apply Group Policy Objects (GPOs) to demonstrate policy creation, enforcement, and client-side verification
