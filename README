@@ -19,8 +19,12 @@ A hands-on engineering environment dedicated to system administration, network s
 * **Status:** In-Progress / Validated
 * **Environment:** Windows Server 2025 Datacenter Edition (DC01) & Windows 11 Pro Client VM
 * **Domain:** `homelab.local`
-* **Core Core Components:** Integrated DNS, Global Catalog, Group Policy Management, RSAT Tools.
+* **Core Components:** Integrated DNS, Global Catalog, Group Policy Management, RSAT Tools.
 * **Implementation Summary:** Deployed a new forest root domain controller with a centralized static IP architecture. Successfully executed a workstation domain-join with a Windows 11 client VM. Verified end-to-end authentication, domain identity verification (`whoami`), and client-side group policy processing (`gpresult /r`).
+* **User & Group Management:** Provisioned domain user accounts through both the ADUC console and scripted PowerShell (`New-ADUser`), enforced password-change-at-next-logon policies, performed identity-verified password resets, disabled/re-enabled accounts to simulate offboarding, and created a security group with full membership management.
+* **OU Structure:** Built a top-level organizational unit under `homelab.local`, nested a sub-OU to model departmental hierarchy, and delegated scoped administrative control of an OU to a specific user via the Delegate Control wizard.
+* **Group Policy:** Created and linked a new GPO to a target OU, configured a UNC-based desktop wallpaper policy with verified NTFS/share permissions, and validated end-to-end policy application on the client VM via `gpupdate /force` and a logoff/logon cycle.
+* **PowerShell Automation:** Queried and modified account attributes using `Get-ADUser`/`Set-ADUser`, and provisioned new security groups programmatically via `New-ADGroup`.
 * **Next Phase:** Build out a structured Organizational Unit (OU) hierarchy by department and implement custom Group Policy Objects (GPOs) to simulate enterprise desktop containment.
 
 ### 2. Network-Attached Storage (NAS) Storage Solution
