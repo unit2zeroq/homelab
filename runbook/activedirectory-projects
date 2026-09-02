@@ -97,9 +97,6 @@ Group Policy:
   7. [verify NTFS/share read permissions on wallpaper folder for affected users/group]
   8. [on client VM, run 'gpupdate /force,' log off and log back on to confirm policy applies]
 
-DNS & Authentication:
-1. [open the DNS zone the DC hosts (homelab.local) and locate SRV records]
-
 PowerShell for AD:
 1. [run Get-ADUser to pull info on an existing account]
 2. [run Set-ADUser to modify an attribute on an existing account]
