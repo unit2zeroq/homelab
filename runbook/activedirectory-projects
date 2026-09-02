@@ -43,23 +43,42 @@ User & Group Management:
 
 3. [reset a user's password and force a change at next logon (identity verified)]
   1. [navigate to 'server manager' application in windows server vm]
-  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers']
   3. [select user you wish to reset password, right click their name, select 'reset password,' enter new password (ensure that 'user must change password at next logon' is checked]
   4. [communicate new password securely with user, document necessary information]
 
 4. [disable an account and re-enable it]
   1. [navigate to 'server manager' application in windows server vm]
-  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers']
   3. [select user you wish to disable, right click their name, click 'disable account']
   4. [if necessary, communicate with user, document necessary information]
 
 5. [create a security group and add/remove a member]
   1. [navigate to 'server manager' application in windows server vm]
-  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers']
   3. [select OU you wish to create a security group in, and click 'create a new group in the current container']
   4. [fill out necessary information (ensure that 'security' is checked in 'group type' and click ok]
   5. [(add) right click user within OU you wish to add to security group, click 'add to a group,' enter name of security group, click ok]
   6. [(remove) right click security group, click 'properties,' then 'members.' select member to remove, click remove, and confirm]
+
+OUs & Structure:
+1. [create a new OU]
+  1. [navigate to 'server manager' application in windows server vm]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers']
+  3. [click domain name you wish to add OU to, then click 'create a new organizational unit in the current container']
+  4. [fill out necessary information, documnent as needed]
+
+2. [nest a sub-OU under an existing one]
+  1. [navigate to 'server manager' application in windows server vm]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers']
+  3. [right click OU you wish to add sub-OU to: (new -> organizational unit)]
+  4. [fill out necessary information, document as needed]
+
+3. [delegate control of an OU to a specific user]
+  1. [navigate to 'server manager' application in windows server vm]
+  2. [while in 'dashboard' menu, click 'tools,' click 'active directory users and computers']
+  3. [right click OU you wish to delegate control to a specific user, click 'delegate control']
+  4. [add user, give proper permissions, document as needed]
 
 ## Notes
 this lab simulates core help desk AD tasks including domain join troubleshooting, DNS dependency verification, and domain account authentication. next phase will build out an OU structure by department and apply Group Policy Objects (GPOs) to demonstrate policy creation, enforcement, and client-side verification
