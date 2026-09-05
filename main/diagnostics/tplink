@@ -46,7 +46,7 @@ hard to locate for management access.
 match the switch's factory-default subnet).
 4. Attempted to reach the switch's admin dashboard at `http://192.168.0.1` — this initially failed with `ping: sendto: Host is down`, 
 indicating nothing was answering at that address (the switch was no longer using its factory-default IP).
-5. Confirmed via the eero app's device list that the switch had a MAC address of `3c:78:95:a5:78:75` — used this as a fixed 
+5. Confirmed via the eero app's device list that the switch had a MAC address of `*redacted*` — used this as a fixed 
 reference point since its IP kept changing.
 6. Power-cycled the switch, then set the workstation back to **DHCP** rather than a manual IP — this let the workstation pull a 
 real lease from the same subnet the switch would be on, confirming the switch was passing DHCP traffic correctly even while the 
