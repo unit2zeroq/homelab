@@ -7,7 +7,9 @@
 
 ## Overview
 
-The TP-Link switch was stuck in a loopback state triggered by a second eero access point transitioning from wireless mesh to wired backhaul. This caused connectivity drops and slow speeds on the second AP. Diagnosed the issue at Layer 2 of the OSI model, then connected to the switch directly to disable loop prevention and stabilize the wired backhaul.
+The TP-Link switch was stuck in a loopback state triggered by a second eero access point transitioning from wireless mesh to 
+wired backhaul. This caused connectivity drops and slow speeds on the second AP. Diagnosed the issue at Layer 2 of 
+the OSI model, then connected to the switch directly to disable loop prevention and stabilize the wired backhaul.
 
 ---
 
@@ -16,15 +18,23 @@ The TP-Link switch was stuck in a loopback state triggered by a second eero acce
 * **Device:** TP-Link TL-SG608E (8-port unmanaged/Easy Smart switch)
 * **Topology:** ONT → gateway eero → switch → eero 2 (2nd-gen eero Pro)
 * **OSI Layer:** Layer 2
-* **Note:** 2nd-gen eero Pro units have two Gigabit Ethernet ports each (no fixed WAN/LAN split), which gives flexibility in where the switch sits in the chain — it can sit between the gateway and the second eero, or off the gateway's second port directly, depending on existing wiring.
+* **Note:** 2nd-gen eero Pro units have two Gigabit Ethernet ports each (no fixed WAN/LAN split), which gives flexibility in 
+where the switch sits in the chain — it can sit between the gateway and the second eero, or off the gateway's second port 
+directly, depending on existing wiring.
 
 ---
 
 ## Root Cause
 
-Mesh systems like eero run **both** the wireless mesh link and a new wired link to the same node simultaneously during backhaul handoff. To an unmanaged switch, that looks like a genuine Layer 2 loop — the same MAC address is reachable from two paths at once — so the switch's Loop Prevention feature kept disabling the port to protect against it. Since eero never fully drops the wireless path on its own once the switch keeps interrupting the wired one, the two systems entered a repeating cycle: wired link comes up → switch flags loop → port disabled → eero falls back to wireless → wired link retried → repeat.
+Mesh systems like eero run **both** the wireless mesh link and a new wired link to the same node simultaneously during 
+backhaul handoff. To an unmanaged switch, that looks like a genuine Layer 2 loop — the same MAC address is reachable 
+from two paths at once — so the switch's Loop Prevention feature kept disabling the port to protect against it. Since eero never 
+fully drops the wireless path on its own once the switch keeps interrupting the wired one, the two systems entered a 
+repeating cycle: wired link comes up → switch flags loop → port disabled → eero falls back to wireless → wired link retried → repeat.
 
-A secondary complication: repeated power/port cycling during this loop caused the switch to lose its DHCP lease, so its IP address kept changing (falling back to its factory-default `192.168.0.1`, then re-acquiring a different DHCP address later), which made it hard to locate for management access.
+A secondary complication: repeated power/port cycling during this loop caused the switch to lose its DHCP lease, so its IP address 
+kept changing (falling back to its factory-default `192.168.0.1`, then re-acquiring a different DHCP address later), which made it 
+hard to locate for management access.
 
 ---
 
@@ -32,10 +42,15 @@ A secondary complication: repeated power/port cycling during this loop caused th
 
 1. Disconnected the switch from the gateway eero to isolate it and stop the loop condition entirely.
 2. Connected a workstation directly to an open port on the switch.
-3. Set the workstation's network adapter to a manual IP (initial attempt used `192.168.0.10` / `255.255.255.0` / `192.168.0.1` to match the switch's factory-default subnet).
-4. Attempted to reach the switch's admin dashboard at `http://192.168.0.1` — this initially failed with `ping: sendto: Host is down`, indicating nothing was answering at that address (the switch was no longer using its factory-default IP).
-5. Confirmed via the eero app's device list that the switch had a MAC address of `3c:78:95:a5:78:75` — used this as a fixed reference point since its IP kept changing.
-6. Power-cycled the switch, then set the workstation back to **DHCP** rather than a manual IP — this let the workstation pull a real lease from the same subnet the switch would be on, confirming the switch was passing DHCP traffic correctly even while the eero app still showed it as "offline."
+3. Set the workstation's network adapter to a manual IP (initial attempt used `192.168.0.10` / `255.255.255.0` / `192.168.0.1` to 
+match the switch's factory-default subnet).
+4. Attempted to reach the switch's admin dashboard at `http://192.168.0.1` — this initially failed with `ping: sendto: Host is down`, 
+indicating nothing was answering at that address (the switch was no longer using its factory-default IP).
+5. Confirmed via the eero app's device list that the switch had a MAC address of `3c:78:95:a5:78:75` — used this as a fixed 
+reference point since its IP kept changing.
+6. Power-cycled the switch, then set the workstation back to **DHCP** rather than a manual IP — this let the workstation pull a 
+real lease from the same subnet the switch would be on, confirming the switch was passing DHCP traffic correctly even while the 
+eero app still showed it as "offline."
 7. Located the switch's live IP by cross-referencing its MAC address against the ARP table:
 ```
    ping -c 3 <subnet_broadcast_address>
@@ -48,7 +63,8 @@ A secondary complication: repeated power/port cycling during this loop caused th
 11. Set the switch's IP configuration from static back to **DHCP** and saved.
 12. Reverted the workstation's TCP/IP settings back to DHCP.
 13. Reconnected the gateway eero to the switch.
-14. Verified the second eero showed a **wired** connection (not wireless mesh) in the eero app, and that the switch itself no longer flapped or re-triggered the loop condition.
+14. Verified the second eero showed a **wired** connection (not wireless mesh) in the eero app, and that the switch itself 
+no longer flapped or re-triggered the loop condition.
 
 ---
 
@@ -56,15 +72,23 @@ A secondary complication: repeated power/port cycling during this loop caused th
 
 **Switch not showing on eero dashboard / unable to access management page**
 - **Date:** 09/05/2026
-- **Symptoms:** Switch appeared "offline" in the eero app device list with a stale "last active" timestamp; browsing to `192.168.0.1` timed out (`Host is down`).
+- **Symptoms:** Switch appeared "offline" in the eero app device list with a stale "last active" timestamp; browsing to `192.168.0.1` 
+timed out (`Host is down`).
 - **Diagnosis steps:**
-  1. Identified that eero assigns a `192.168.4.x` subnet by default, which doesn't match the switch's factory-default fallback of `192.168.0.1` — meaning any attempt to reach `.0.1` from a device on the `.4.x` subnet would fail outright (wrong subnet, no route).
+  1. Identified that eero assigns a `192.168.4.x` subnet by default, which doesn't match the switch's factory-default fallback of 
+     `192.168.0.1` — meaning any attempt to reach `.0.1` from a device on the `.4.x` subnet would fail outright (wrong subnet, no route).
   2. Disconnected the switch from the gateway to remove the loop condition and stop the port from being cycled/disabled.
-  3. Set a manual TCP/IP configuration on the workstation to test reachability directly, ruling out routing interference from the rest of the network.
+  3. Set a manual TCP/IP configuration on the workstation to test reachability directly, ruling out routing interference from the 
+     rest of the network.
   4. Used `http://` explicitly to rule out browser HTTPS auto-upgrade issues (though this ended up being secondary to the subnet mismatch).
-  5. Confirmed the switch was actually functioning (passing DHCP + forwarding traffic) even while eero's app reported it offline — the app's device status for non-eero devices sitting behind a switch is not always reliable in real time.
-- **Root cause:** Subnet mismatch prevented direct access to the switch's factory-default fallback IP, compounded by eero's simultaneous wired/wireless mesh handoff triggering the switch's loop prevention repeatedly, which also caused the switch's DHCP-leased IP to change between troubleshooting attempts.
-- **Fix:** Isolated the switch, confirmed physical/DHCP functionality independent of eero's dashboard status, located its true live IP via ARP/MAC lookup, and accessed it directly to disable the conflicting loop prevention and IGMP snooping settings.
+  5. Confirmed the switch was actually functioning (passing DHCP + forwarding traffic) even while eero's app reported it 
+     offline — the app's device status for non-eero devices sitting behind a switch is not always reliable in real time.
+- **Root cause:** Subnet mismatch prevented direct access to the switch's factory-default fallback IP, compounded by eero's 
+                  simultaneous wired/wireless mesh handoff triggering the switch's loop prevention repeatedly, which also caused the switch's 
+                  DHCP-leased IP to change between troubleshooting attempts.
+- **Fix:** Isolated the switch, confirmed physical/DHCP functionality independent of eero's dashboard status, located 
+           its true live IP via ARP/MAC lookup, and accessed it directly to disable the conflicting loop prevention and IGMP 
+           snooping settings.
 - **Time to resolve:** ~15 minutes (excluding the initial diagnosis time spent on subnet mismatch before finding the correct address).
 
 ---
@@ -77,7 +101,14 @@ Properly functioning wired backhaul for the second eero access point, with no fu
 
 ## Notes
 
-- Eero's mesh wireless connection between nodes cannot be fully disabled at the OS level, so when introducing a wired backhaul, **Loop Prevention on the switch must be turned off** — otherwise the switch will continually fight the transient dual-path (wired + wireless) state eero produces during handoff.
-- The eero app's "online/offline" and "last active" status for **non-eero devices** (like this switch) sitting behind a switch is not always trustworthy in real time — it can lag significantly or misreport a fully functional device as offline. Don't treat it as the sole diagnostic signal; verify with a direct ping/DHCP test instead.
-- When a switch's IP is unknown or changing, cross-referencing its MAC address (visible in the eero app's device info page) against the workstation's ARP table (`arp -a`) or an `nmap -sn` subnet scan is a reliable way to locate it without relying on the switch's own management utility.
-- Basic physical checks (power LED, link light on the uplink port) are worth confirming early — they quickly rule out a hardware/cabling fault before investing time in software-level diagnosis.
+- Eero's mesh wireless connection between nodes cannot be fully disabled at the OS level, so when introducing a wired backhaul, 
+**Loop Prevention on the switch must be turned off** — otherwise the switch will continually fight the transient dual-path 
+(wired + wireless) state eero produces during handoff.
+- The eero app's "online/offline" and "last active" status for **non-eero devices** (like this switch) sitting behind a 
+switch is not always trustworthy in real time — it can lag significantly or misreport a fully functional device as offline. 
+Don't treat it as the sole diagnostic signal; verify with a direct ping/DHCP test instead.
+- When a switch's IP is unknown or changing, cross-referencing its MAC address (visible in the eero app's device info page) 
+against the workstation's ARP table (`arp -a`) or an `nmap -sn` subnet scan is a reliable way to locate it without relying on 
+the switch's own management utility.
+- Basic physical checks (power LED, link light on the uplink port) are worth confirming early — they quickly rule out a 
+hardware/cabling fault before investing time in software-level diagnosis.
