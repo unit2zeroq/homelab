@@ -57,7 +57,7 @@ eero app still showed it as "offline."
    arp -a
 ```
    (fallback option if ARP doesn't populate: `nmap -sn <subnet>/24` to list all live hosts, then match by MAC)
-8. Logged into the switch admin dashboard at the discovered IP with default credentials (`admin` / `admin`).
+8. Logged into the switch admin dashboard at the discovered IP with default credentials (`admin` / `admin`) (modified login for security).
 9. Disabled **Loop Prevention**.
 10. Disabled **IGMP Snooping**.
 11. Set the switch's IP configuration from static back to **DHCP** and saved.
