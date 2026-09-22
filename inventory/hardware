@@ -11,7 +11,33 @@
 - Connected to: [Bedroom WAP: Port 2]
 - Date added: [01/2020]
 - Notes: [Ubuntu VM hosting osTicket software. Windows Server 2025 Datacenter Edition hosting Active Directory sandbox.]
-  
+
+## Device: [Default Gateway + Access Point]
+- Type: Default Gateway + Access Point
+- Make / Model: Ubiquiti UniFi Express 7
+- CPU: [Quad-core ARM® Cortex®-A53]
+- RAM: [3GB]
+- Storage: [3GB Flash Storage]
+- OS: [UniFi OS]
+- IP Address: [private]
+- Role: [Default gateway for home LAN]
+- Connected to: [ONT (WAN Port)]
+- Date added: [09/2026]
+- Notes: [Managed through UniFi]
+
+## Device: [Access Point 2]
+- Type: Access Point
+- Make / Model: Ubiquiti UniFi Express 7
+- CPU: [Quad-core ARM® Cortex®-A53]
+- RAM: [3GB]
+- Storage: [3GB Flash Storage]
+- OS: [UniFi OS]
+- IP Address: [private]
+- Role: [Access Point for home LAN]
+- Connected to: [TP-Link TL SG208E - Port XXX]
+- Date added: [09/2026]
+- Notes: [Managed through UniFi]
+
 ## Device: [Server and NAS]
 
 - Type: Desktop PC
@@ -39,7 +65,7 @@
 - Connected to: [TP-Link TL-SG208E — Port 1]
 - Case: [Argon POLY+ 5]
 - Date added: [06/2026]
-- Notes: [Pi-hole installed and connected with SSH, static IP configured, network-wide DNS set via "Eero" WAP application. Uptime-kuma installed.]
+- Notes: [Pi-hole and Uptime-Kuma installed. Static IP configured. Network-wide DNS set via UniFi console.]
 
 ## Device: [TP-Link TL-SG208E]
 
