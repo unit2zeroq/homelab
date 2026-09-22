@@ -45,7 +45,7 @@
 - CPU: [Intel Core i5 8500T]
 - RAM: [16GB DDR4 2400MHZ x2]
 - Storage: [Boot Drive: SK Hynix SC401 SATA SSD 256GB]
-- OS: [Windows 11 Pro]
+- OS: [Ubuntu Server]
 - IP Address: [private]
 - Role: [Dedicated Homelab server and NAS]
 - Connected to: [TP-Link TL-SG208E — Port 7]
