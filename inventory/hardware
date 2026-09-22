@@ -7,26 +7,26 @@
 - Storage: [Boot Drive: Samsung SSD 860 EVO 500GB] [Storage Drive (D:): Samsung SSD 980 1TB]
 - OS: [Windows 10 Pro]
 - IP Address: [private]
-- Role: [Primary Workstation and Type 2 Hypervisor hosting Ubuntu and Windows Server 2025 Datacenter Edition]
-- Connected to: [Bedroom WAP: Port 2]
+- Role: [Primary Workstation and Type 2 Hypervisor hosting Ubuntu, Windows 11, and Windows Server 2025 Datacenter Edition]
+- Connected to: [Express 7 AP: LAN Port]
 - Date added: [01/2020]
-- Notes: [Ubuntu VM hosting osTicket software. Windows Server 2025 Datacenter Edition hosting Active Directory sandbox.]
+- Notes: [Ubuntu VM hosting osTicket software. Windows 11 VM linked to Windows Server 2025 Datacenter Edition hosting Active Directory sandbox]
 
-## Device: [Default Gateway + Access Point]
-- Type: Default Gateway + Access Point
+## Device: [Default Gateway + Access Point 1]
+- Type: Default Gateway + Access Point 
 - Make / Model: Ubiquiti UniFi Express 7
 - CPU: [Quad-core ARM® Cortex®-A53]
 - RAM: [3GB]
 - Storage: [3GB Flash Storage]
 - OS: [UniFi OS]
 - IP Address: [private]
-- Role: [Default gateway for home LAN]
+- Role: [Default gateway for LAN]
 - Connected to: [ONT (WAN Port)]
 - Date added: [09/2026]
 - Notes: [Managed through UniFi]
 
 ## Device: [Access Point 2]
-- Type: Access Point
+- Type: Access Point 
 - Make / Model: Ubiquiti UniFi Express 7
 - CPU: [Quad-core ARM® Cortex®-A53]
 - RAM: [3GB]
@@ -39,7 +39,6 @@
 - Notes: [Managed through UniFi]
 
 ## Device: [Server and NAS]
-
 - Type: Desktop PC
 - Make / Model: [Dell Optiplex 3060]
 - CPU: [Intel Core i5 8500T]
@@ -48,7 +47,7 @@
 - OS: [Ubuntu Server]
 - IP Address: [private]
 - Role: [Dedicated Homelab server and NAS]
-- Connected to: [TP-Link TL-SG208E — Port 7]
+- Connected to: [TP-Link TL-SG208E — Port XXX]
 - Date added: [06/2026]
 - Notes: []
 
@@ -62,7 +61,7 @@
 - OS: [Raspberry Pi OS Lite (64-bit) (Legacy)]
 - IP Address: [private]
 - Role: [DNS sinkhole / network-wide ad blocking, network monitoring]
-- Connected to: [TP-Link TL-SG208E — Port 1]
+- Connected to: [TP-Link TL-SG208E — Port XXX]
 - Case: [Argon POLY+ 5]
 - Date added: [06/2026]
 - Notes: [Pi-hole and Uptime-Kuma installed. Static IP configured. Network-wide DNS set via UniFi console.]
