@@ -69,6 +69,6 @@
 - Make / Model: [TP-Link TL-SG208E]
 - Ports: [8x Gigabit]
 - VLAN Support: [802.1Q]
-- Role: [Core lab switch, future VLAN segmentation]
+- Role: [Core LAN switch]
 - Date added: [06/2026]
-- Notes: [VLANs not yet configured — planned for Network+ study phase]
+- Notes: [VLAN not yet configured — planned for Network+ study phase]
