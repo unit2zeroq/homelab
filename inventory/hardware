@@ -1,5 +1,4 @@
 ## Device: [Workstation]
-
 - Type: Desktop PC
 - Make / Model: [Custom Built]
 - CPU: [AMD Ryzen 5 5600x]
@@ -52,7 +51,6 @@
 - Notes: []
 
 ## Device: [Raspberry Pi]
-
 - Type: Single-Board Computer
 - Make / Model: [Raspberry Pi 5 1GB]
 - CPU: [ARM Cortex-A76 Quad Core 2.4GHz]
@@ -67,7 +65,6 @@
 - Notes: [Pi-hole and Uptime-Kuma installed. Static IP configured. Network-wide DNS set via UniFi console.]
 
 ## Device: [TP-Link TL-SG208E]
-
 - Type: [Managed Switch (8 port)]
 - Make / Model: [TP-Link TL-SG208E]
 - Ports: [8x Gigabit]
